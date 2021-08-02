@@ -7,6 +7,8 @@
  * module "cloudwatch_kms_key" {
  *   source = "dod-iac/cloudwatch-kms-key/aws"
  *
+ *   name = "alias/name"
+ *
  *   tags = {
  *     Application = var.application
  *     Environment = var.environment
