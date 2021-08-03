@@ -8,15 +8,17 @@
 package test
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"strings"
 	"testing"
 
-	"github.com/stretchr/testify/require"
-
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/kms"
 	"github.com/gruntwork-io/terratest/modules/random"
 	"github.com/gruntwork-io/terratest/modules/terraform"
+	"github.com/stretchr/testify/require"
 )
 
 func TestTerraformSimpleExample(t *testing.T) {
@@ -78,4 +80,20 @@ func TestTerraformSimpleExample(t *testing.T) {
 	require.True(t, len(outputKMSAliasARN) > 0)
 	require.Equal(t, keyName, outputKMSAliasName)
 	require.True(t, len(outputKMSKeyARN) > 0)
+
+	awsCfg, errCfg := config.LoadDefaultConfig(context.TODO(), config.WithRegion(region))
+	require.NoError(t, errCfg)
+	svcKMS := kms.NewFromConfig(awsCfg)
+
+	describeKeyOutput, errDescribeKey := svcKMS.DescribeKey(context.TODO(), &kms.DescribeKeyInput{
+		KeyId: &keyName,
+	})
+	require.NoError(t, errDescribeKey)
+	require.Equal(t, outputKMSKeyARN, *describeKeyOutput.KeyMetadata.Arn)
+
+	listAliasesOutput, errListAliases := svcKMS.ListAliases(context.TODO(), &kms.ListAliasesInput{
+		KeyId: describeKeyOutput.KeyMetadata.Arn,
+	})
+	require.NoError(t, errListAliases)
+	require.Equal(t, outputKMSAliasARN, *listAliasesOutput.Aliases[0].AliasArn)
 }
