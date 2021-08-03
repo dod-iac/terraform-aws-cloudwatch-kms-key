@@ -14,6 +14,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/kms"
 	"github.com/gruntwork-io/terratest/modules/random"
@@ -96,4 +97,11 @@ func TestTerraformSimpleExample(t *testing.T) {
 	})
 	require.NoError(t, errListAliases)
 	require.Equal(t, outputKMSAliasARN, *listAliasesOutput.Aliases[0].AliasArn)
+
+	getKeyPolicyOutput, errGetKeyPolicy := svcKMS.GetKeyPolicy(context.TODO(), &kms.GetKeyPolicyInput{
+		KeyId:      describeKeyOutput.KeyMetadata.Arn,
+		PolicyName: aws.String("default"),
+	})
+	require.NoError(t, errGetKeyPolicy)
+	require.True(t, len(*getKeyPolicyOutput.Policy) > 0)
 }
