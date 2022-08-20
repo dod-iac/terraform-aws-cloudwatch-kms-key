@@ -1,4 +1,4 @@
-#! /usr/bin/env bash
+#!/bin/bash
 
 # =================================================================
 #
@@ -7,7 +7,7 @@
 #
 # =================================================================
 
-set -euo pipefail
+set -eu -o pipefail
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 readonly DIR
@@ -17,4 +17,15 @@ if ! command -v terraform > /dev/null; then
   exit 1
 fi
 
-terraform fmt "${DIR}/.."
+pushd "${DIR}/.." > /dev/null
+terraform fmt
+popd > /dev/null
+
+for example in ${DIR}/../examples/*
+do
+  if [ -d "${example}" ] && [ -f "${example}/main.tf" ]; then
+    pushd "${example}" > /dev/null
+    terraform fmt
+    popd > /dev/null
+  fi
+done

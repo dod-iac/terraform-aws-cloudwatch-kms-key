@@ -23,9 +23,9 @@
  *
  * ## Terraform Version
  *
- * Terraform 0.12. Pin module version to ~> 1.0.0 . Submit pull-requests to master branch.
+ * Terraform 0.13. Pin module version to ~> 1.0.0 . Submit pull-requests to main branch.
  *
- * Terraform 0.11 is not supported.
+ * Terraform 0.11 and 0.12 are not supported.
  *
  * ## License
  *
